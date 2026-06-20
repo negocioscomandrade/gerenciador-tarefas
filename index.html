@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Meu Gerenciador de Tarefas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        h2 { text-align: center; color: #333; }
+        .form-grupo { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #218838; }
+        ul { list-style: none; padding: 0; }
+        li {
+            padding: 10px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Minhas Tarefas</h2>
+        
+        <div class="form-grupo">
+            <input type="text" id="inputTarefa" placeholder="Digita uma nova tarefa...">
+            <button onclick="adicionarTarefa()">Adicionar</button>
+        </div>
+
+        <ul id="listaTarefas"></ul>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/tarefas';
+
+        // Função que é executada assim que a página carrega
+        window.onload = function() {
+            carregarTarefas();
+        };
+
+        // 1. BUSCAR TAREFAS (GET) do servidor
+        async function carregarTarefas() {
+            try {
+                const resposta = await fetch(API_URL);
+                const tarefas = await resposta.json();
+                
+                const ul = document.getElementById('listaTarefas');
+                ul.innerHTML = ''; // Limpa a lista antes de redesenhar
+
+                tarefas.forEach(tarefa => {
+                    const li = document.createElement('li');
+                    li.textContent = tarefa.titulo;
+                    ul.appendChild(li);
+                });
+            } catch (erro) {
+                console.error("Erro ao carregar tarefas:", erro);
+            }
+        }
+
+        // 2. ENVIAR NOVA TAREFA (POST) para o servidor
+        async function adicionarTarefa() {
+            const input = document.getElementById('inputTarefa');
+            const titulo = input.value.trim();
+
+            if (titulo === '') return;
+
+            try {
+                // Envia a tarefa para o backend em formato JSON
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ titulo: titulo })
+                });
+
+                input.value = ''; // Limpa o campo de texto
+                carregarTarefas(); // Recarrega a lista com a nova tarefa vinda do banco!
+            } catch (erro) {
+                console.error("Erro ao adicionar tarefa:", erro);
+            }
+        }
+    </script>
+</body>
+</html>
