@@ -9,13 +9,14 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Configuração da conexão com o teu PostgreSQL (Ajusta a senha se mudaste na instalação!)
+// CONFIGURAÇÃO CORRIGIDA PARA A RENDER:
+// O process.env.DATABASE_URL vai ler automaticamente as credenciais do banco na nuvem.
+// Caso não exista (se rodar no PC), ele usa uma string vazia ou as credenciais locais por segurança.
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'todo_db',
-    password: '@Andrade939.', // <-- ATENÇÃO: Substitui pela senha do teu pgAdmin
-    port: 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false // Obrigatório para aceitar conexões seguras na Render
+    }
 });
 
 // Rota para buscar todas as tarefas do banco de dados
@@ -24,7 +25,7 @@ app.get('/tarefas', async (req, res) => {
         const resultado = await pool.query('SELECT * FROM tarefas ORDER BY id ASC');
         res.json(resultado.rows);
     } catch (err) {
-        console.error(err.message);
+        console.error("Erro na rota GET /tarefas:", err.message);
         res.status(500).send("Erro no servidor");
     }
 });
@@ -39,12 +40,12 @@ app.post('/tarefas', async (req, res) => {
         );
         res.json(novaTarefa.rows[0]);
     } catch (err) {
-        console.error(err.message);
+        console.error("Erro na rota POST /tarefas:", err.message);
         res.status(500).send("Erro no servidor");
     }
 });
 
-// Inicia o servidor na porta 3000
+// Inicia o servidor dinamicamente
 app.listen(port, () => {
-    console.log(`Servidor rodando em https://gerenciador-tarefas-n7fj.onrender.com`);
+    console.log(`Servidor rodando com sucesso na porta ${port}`);
 });
