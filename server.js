@@ -46,5 +46,5 @@ app.post('/tarefas', async (req, res) => {
 
 // Inicia o servidor na porta 3000
 app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+    console.log(`Servidor rodando em https://gerenciador-tarefas-n7fj.onrender.com`);
 });
